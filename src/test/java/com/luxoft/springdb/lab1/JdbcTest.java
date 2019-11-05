@@ -26,7 +26,7 @@ public class JdbcTest{
 	
     private List<Country> expectedCountryList = new ArrayList<Country>();
     private List<com.luxoft.springdb.lab1.model.Country> expectedCountryListStartsWithA = new ArrayList<Country>();
-    private Country countryWithChangedName = new Country(7, "Russian Federation", "RU");
+    private Country countryWithChangedName = new Country(1, "Russia", "RU");
 
     @Before
     public void setUp() throws Exception {
@@ -62,7 +62,7 @@ public class JdbcTest{
 
     @Test
     @DirtiesContext
-    public void testCountryChange() {
+    public void testCountryChange() throws InterruptedException {
         countryDao.updateCountryName("RU", "Russia");
         assertEquals(countryWithChangedName, countryDao.getCountryByCodeName("RU"));
     }

@@ -26,6 +26,8 @@ public class CountryDao extends JdbcDaoSupport {
 	private static final String UPDATE_COUNTRY_NAME_SQL_1 = "update country SET name='";
 	private static final String UPDATE_COUNTRY_NAME_SQL_2 = " where code_name='";
 
+	private static final CountryRowMapper COUNTRY_ROW_MAPPER = new CountryRowMapper();
+
 	public static final String[][] COUNTRY_INIT_DATA = { { "Australia", "AU" },
 			{ "Canada", "CA" }, { "France", "FR" }, { "Hong Kong", "HK" },
 			{ "Iceland", "IC" }, { "Japan", "JP" }, { "Nepal", "NP" },
@@ -33,26 +35,10 @@ public class CountryDao extends JdbcDaoSupport {
 			{ "Switzerland", "CH" }, { "United Kingdom", "GB" },
 			{ "United States", "US" } };
 
-	private static final RowMapper<Country> COUNTRY_ROW_MAPPER = new RowMapper<Country>() {
-		public static final String ID = "id";
-		public static final String NAME = "name";
-		public static final String CODE_NAME = "code_name";
-
-		public Country mapRow(ResultSet resultSet, int i) throws SQLException {
-			Country country = new Country();
-			country.setId(resultSet.getInt(ID));
-			country.setName(resultSet.getString(NAME));
-			country.setCodeName(resultSet.getString(CODE_NAME));
-			return country;
-		}
-	};
 
 	public List<Country> getCountryList() throws CountryNotFoundException {
-		JdbcTemplate jdbcTemplate = getJdbcTemplate();
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(getDataSource());
 		List<Country> countryList = jdbcTemplate.query(GET_ALL_COUNTRIES_SQL, COUNTRY_ROW_MAPPER);
-		if (countryList.isEmpty()) {
-			throw new CountryNotFoundException();
-		}
 		return countryList;
 	}
 
@@ -66,19 +52,8 @@ public class CountryDao extends JdbcDaoSupport {
 	}
 
 	public void updateCountryName(String codeName, String newCountryName) {
-//		getJdbcTemplate().execute(UPDATE_COUNTRY_NAME_SQL_1  + newCountryName + "'" + UPDATE_COUNTRY_NAME_SQL_2 + codeName + "'");
-
-
-//		String SQL = "update country SET name = ? where code_name = ?";
-//		getJdbcTemplate().update(SQL, newCountryName, codeName);
-
-
-		String sql = "update country SET name = :_name where code_name = :code_name";
-
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		parameters.put("_name", newCountryName);
-		parameters.put("code_name", codeName);
-		getJdbcTemplate().update(sql, parameters);
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(getDataSource());
+		jdbcTemplate.update(UPDATE_COUNTRY_NAME_SQL_1 + newCountryName + "'" + UPDATE_COUNTRY_NAME_SQL_2 + codeName + "'");
 	}
 
 	public void loadCountries() {
